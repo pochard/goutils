@@ -1,16 +1,11 @@
-# goutils
-This is a golang utils module with some common functions.
+package goutils
 
-Import it in your program as:
-```go
-      import "github.com/pochard/goutils"
-```
+import (
+	"net/http"
+	"strings"
+)
 
-## API
-### func GetClientIP(r *http.Request, headers ...string) string
 
-## Example
-``` go
 // GetClientIP return the client IP of a http request, by the order
 // of a given list of headers. If no ip is found in headers, then return request's
 // RemoteAddr. This is useful when there are proxy servers between the client and the backend server.
@@ -20,8 +15,12 @@ Import it in your program as:
 // the header "x-forwarded-for" if it exists, then split it by "," and return the first part.
 // Otherwise it will return request's RemoteAddr.
 //
-func handler(w http.ResponseWriter, r *http.Request) {
-	clientIP := goutils.GetClientIP(r,"x-real-ip","x-forwarded-for")
+func GetClientIP(r *http.Request, headers ...string) string {
+	for _, header := range headers {
+		ip := r.Header.Get(header)
+		if ip != "" {
+			return strings.Split(ip, ",")[0]
+		}
+	}
+	return strings.Split(r.RemoteAddr, ":")[0]
 }
-
-```
